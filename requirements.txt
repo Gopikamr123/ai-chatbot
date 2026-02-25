@@ -1,0 +1,16 @@
+# Core packages
+flask>=3.0
+flask-sqlalchemy>=3.1
+flask-login>=0.6
+werkzeug>=3.0
+python-dotenv>=1.0
+
+# Web search (DuckDuckGo - no API key needed!)
+requests>=2.31
+
+# LLM - pick ONE (groq is free and recommended for beginners)
+groq>=0.9
+
+# Uncomment whichever you want to use:
+# openai>=1.0               # ChatGPT
+# google-generativeai>=0.7  # Google Gemini

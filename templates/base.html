@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Ai{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --peach: #F2A98A; --blush: #EEC5B0; --lavender: #C9C0D8;
+    --cream: #FAF5F0; --coral: #D96147; --warm-dark: #2B2320;
+    --text-mid: #6B5753; --text-soft: #A89591;
+    --glass: rgba(255,255,255,.55); --glass-border: rgba(255,255,255,.65);
+  }
+  html, body { height: 100%; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #F9EDE5;
+    color: var(--warm-dark);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+  .mesh-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 70% 55% at 15% 20%, rgba(242,169,138,.45) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 85% 10%, rgba(255,220,180,.55) 0%, transparent 55%),
+      radial-gradient(ellipse 55% 60% at 80% 80%, rgba(201,192,216,.55) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 45% at 10% 85%, rgba(230,210,200,.40) 0%, transparent 55%);
+    background-color: #F9EDE5;
+    animation: meshShift 18s ease-in-out infinite alternate;
+  }
+  @keyframes meshShift {
+    0%   { filter: hue-rotate(0deg) brightness(1); }
+    100% { filter: hue-rotate(8deg) brightness(1.04); }
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0; width: 240px; z-index: 50;
+    background: rgba(249,237,229,.75);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--glass-border);
+    display: flex; flex-direction: column;
+    padding: 28px 20px;
+  }
+  .sidebar-logo {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 500; font-size: 1.1rem; color: var(--warm-dark);
+    text-decoration: none; margin-bottom: 40px;
+  }
+  .sidebar-logo svg { width: 24px; height: 24px; }
+  .nav-section-label {
+    font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--text-soft); margin-bottom: 8px; padding-left: 12px;
+  }
+  .sidebar-nav { list-style: none; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .sidebar-nav a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 12px;
+    font-size: .87rem; color: var(--text-mid);
+    text-decoration: none; transition: all .2s;
+  }
+  .sidebar-nav a:hover { background: rgba(217,97,71,.08); color: var(--coral); }
+  .sidebar-nav a.active { background: rgba(217,97,71,.12); color: var(--coral); font-weight: 500; }
+  .sidebar-nav svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.8; fill: none; flex-shrink: 0; }
+  .sidebar-footer {
+    border-top: 1px solid rgba(200,180,170,.3);
+    padding-top: 16px; margin-top: 16px;
+  }
+  .sidebar-user {
+    display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+    border-radius: 12px; margin-bottom: 4px;
+  }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--peach), var(--lavender));
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-weight: 600; color: white; flex-shrink: 0;
+  }
+  .user-name { font-size: .84rem; font-weight: 500; color: var(--warm-dark); }
+  .user-email { font-size: .72rem; color: var(--text-soft); }
+
+  /* ── MAIN CONTENT ── */
+  .main-wrap {
+    margin-left: 240px;
+    min-height: 100vh;
+    position: relative; z-index: 1;
+  }
+  .topbar {
+    position: sticky; top: 0; z-index: 40;
+    background: rgba(249,237,229,.70);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(200,180,170,.2);
+    padding: 16px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .page-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem; font-weight: 300; color: var(--warm-dark);
+  }
+  .content-area { padding: 36px 40px; }
+
+  /* ── FLASH MESSAGES ── */
+  .flashes { list-style: none; margin-bottom: 24px; display: flex; flex-direction: column; gap: 8px; }
+  .flash {
+    padding: 12px 18px; border-radius: 12px; font-size: .85rem;
+    backdrop-filter: blur(8px); border: 1px solid transparent;
+  }
+  .flash.success { background: rgba(100,180,100,.12); border-color: rgba(100,180,100,.25); color: #2d6a2d; }
+  .flash.error   { background: rgba(217,97,71,.10);  border-color: rgba(217,97,71,.25);  color: var(--coral); }
+  .flash.info    { background: rgba(100,140,200,.10); border-color: rgba(100,140,200,.25); color: #3a5a8a; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 4px 20px rgba(180,100,80,.08);
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 24px; border-radius: 30px; border: none;
+    font-family: 'DM Sans', sans-serif; font-size: .86rem;
+    font-weight: 500; cursor: pointer; text-decoration: none;
+    transition: transform .2s, box-shadow .2s; letter-spacing: .02em;
+  }
+  .btn-primary {
+    background: var(--coral); color: white;
+    box-shadow: 0 6px 20px rgba(217,97,71,.3);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(217,97,71,.4); }
+  .btn-ghost {
+    background: rgba(255,255,255,.4); color: var(--text-mid);
+    border: 1px solid rgba(200,180,170,.4);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,.65); }
+  .btn-danger {
+    background: rgba(217,97,71,.1); color: var(--coral);
+    border: 1px solid rgba(217,97,71,.2);
+  }
+  .btn-danger:hover { background: rgba(217,97,71,.18); }
+  .btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  /* ── FORM ELEMENTS ── */
+  .form-group { margin-bottom: 20px; }
+  .form-label { display: block; font-size: .8rem; font-weight: 500; color: var(--text-mid); margin-bottom: 7px; letter-spacing: .03em; }
+  .form-control {
+    width: 100%; padding: 12px 16px;
+    background: rgba(255,255,255,.5); border: 1px solid rgba(200,180,170,.4);
+    border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: .9rem;
+    color: var(--warm-dark); outline: none; transition: border-color .2s, box-shadow .2s;
+    backdrop-filter: blur(8px);
+  }
+  .form-control:focus { border-color: var(--coral); box-shadow: 0 0 0 3px rgba(217,97,71,.1); }
+  textarea.form-control { resize: vertical; min-height: 120px; }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .main-wrap { margin-left: 0; }
+  }
+</style>
+{% block extra_styles %}{% endblock %}
+</head>
+<body>
+<div class="mesh-bg"></div>
+
+{% if current_user.is_authenticated %}
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a href="{{ url_for('dashboard') }}" class="sidebar-logo">
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M12 2C12 2 7 8 7 13C7 15.76 9.24 18 12 18C14.76 18 17 15.76 17 13C17 8 12 2 12 2Z" fill="#D96147"/>
+      <path d="M12 10C12 10 10 13 10 15C10 16.1 10.9 17 12 17C13.1 17 14 16.1 14 15C14 13 12 10 12 10Z" fill="#F2A98A"/>
+    </svg>
+    Ai
+  </a>
+
+  <p class="nav-section-label">Menu</p>
+  <ul class="sidebar-nav">
+    <li>
+      <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('documents') }}" class="{% if 'document' in request.endpoint %}active{% endif %}">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Documents
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('chat') }}" class="{% if request.endpoint == 'chat' %}active{% endif %}">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Chat
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('add_document') }}">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Add Document
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="avatar">{{ current_user.username[0].upper() }}</div>
+      <div>
+        <div class="user-name">{{ current_user.username }}</div>
+        <div class="user-email">{{ current_user.email[:22] }}{% if current_user.email|length > 22 %}…{% endif %}</div>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="btn btn-ghost" style="width:100%; justify-content:center; margin-top:8px;">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Log out
+    </a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-wrap">
+  <div class="topbar">
+    <h1 class="page-title">{% block page_title %}{% endblock %}</h1>
+    <div>{% block topbar_actions %}{% endblock %}</div>
+  </div>
+  <div class="content-area">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for cat, msg in messages %}
+            <li class="flash {{ cat }}">{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+{% else %}
+<!-- Auth pages - no sidebar -->
+{% block auth_content %}{% endblock %}
+{% endif %}
+
+{% block scripts %}{% endblock %}
+</body>
+</html>
