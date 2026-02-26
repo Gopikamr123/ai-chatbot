@@ -1,5 +1,5 @@
 # 🤖 AI RAG Chatbot
-#live website link:
+LIVE WEBSITE LINK:
 https://gopikamr.pythonanywhere.com/
 
 A full-stack AI-powered chatbot that lets you **chat with your own documents**. Add any text content as a knowledge base, ask questions, and get grounded answers — powered by Groq (free), OpenAI, Gemini, or a local Ollama model.
